@@ -1,3 +1,5 @@
+import { Direction } from './Pacman.ts';
+
 export default class TileMap {
     private map: number[][];
     private tileSize: number;
@@ -108,6 +110,18 @@ export default class TileMap {
                         break;
                 }
             }
+        }
+    }
+
+    wallCollision(col: number, row: number, direction: Direction) {
+        if(direction === Direction.UP) {
+            return this.map[row - 1][col] === 1;
+        } else if(direction === Direction.DOWN) {
+            return this.map[row + 1][col] === 1;
+        } else if(direction === Direction.LEFT) {
+            return this.map[row][col - 1] === 1;
+        } else if(direction === Direction.RIGHT) {
+            return this.map[row][col + 1] === 1;
         }
     }
 }

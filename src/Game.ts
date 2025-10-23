@@ -1,5 +1,6 @@
 import TileMap from './TileMap.ts';
 import Pacman from './Pacman.ts';
+import { Direction } from './Pacman.ts';
 
 const canvas = document.getElementById('canvas') as HTMLCanvasElement;
 const ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
@@ -18,11 +19,27 @@ const tileMap = new TileMap(tileSize, ctx);
 tileMap.setCanvasSize();
 
 const startPosition = tileMap.getStartPosition();
-const pacman = new Pacman(startPosition.x, startPosition.y, tileSize, ctx);
+const pacman = new Pacman(startPosition.x, startPosition.y, tileSize, ctx, tileMap);
+
+window.addEventListener('keydown', (event) => {
+  if (event.key === 'ArrowUp') {
+    pacman.changeDirection(Direction.UP);
+  }
+  if (event.key === 'ArrowDown') {
+    pacman.changeDirection(Direction.DOWN);
+  }
+  if (event.key === 'ArrowLeft') {
+    pacman.changeDirection(Direction.LEFT);
+  }
+  if (event.key === 'ArrowRight') {
+    pacman.changeDirection(Direction.RIGHT);
+  }
+});
 
 function gameLoop() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   tileMap.draw();
+  pacman.move();
   pacman.draw();
   requestAnimationFrame(gameLoop);
 }
