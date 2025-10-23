@@ -3,6 +3,8 @@ export default class TileMap {
     private tileSize: number;
     private ctx: CanvasRenderingContext2D;
     private mapString: string;
+    private startX: number = 0;
+    private startY: number = 0;
 
     constructor(tileSize: number, ctx: CanvasRenderingContext2D) {
         // this.map = this.loadMap(mapString);
@@ -39,28 +41,38 @@ export default class TileMap {
 └──────────────────────────┘`;
         this.tileSize = tileSize;
         this.ctx = ctx;
-        this.map = this.loadMap([]);
+        this.map = this.loadMap();
     }
 
-    private loadMap(map: number[][]) {
+    private loadMap() {
+        let map: number[][] = [];
         // convert mapString to 2d array
         const rows = this.mapString.split('\n');
-        for (const row of rows) {
+        for (let y = 0; y < rows.length; y++) {
             let line = [];
-            for (const char of row) {
+            for (let x = 0; x < rows[y].length; x++) {
+                const char = rows[y][x];
                 if (char === '○') {
                     line.push(3);
                 } else if (char === '·') {
                     line.push(2);
                 } else if (char === '┌' || char === '┐' || char === '┘' || char === '└' || char === '│' || char === '─' || char === '=') {
                     line.push(1);
+                } else if (char === 'X') {
+                    this.startX = x*this.tileSize + this.tileSize / 2;
+                    this.startY = y*this.tileSize;
+                    line.push(0)
                 } else {
                     line.push(0);
                 }
             }
-            map.push(line);
+            map.push(line); 
         }
         return map;
+    }
+
+    getStartPosition() {
+        return { x: this.startX, y: this.startY };
     }
 
     setCanvasSize() {
@@ -69,7 +81,7 @@ export default class TileMap {
     }
 
     draw() {
-        console.log(this.map);
+        // console.log(this.map);
         for (let y = 0; y < this.map.length; y++) {
             for (let x = 0; x < this.map[y].length; x++) {
                 const tile = this.map[y][x];
