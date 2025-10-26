@@ -40,8 +40,12 @@ export default class Pacman {
         const row = this.y / this.tileSize;
 
         if(this.requestedDirection !== this.direction) {
-
-            if(Number.isInteger(col) && Number.isInteger(row) && !this.tileMap.wallCollision(col, row, this.requestedDirection)) {
+            if((this.direction === Direction.DOWN && this.requestedDirection === Direction.UP) ||
+            (this.direction === Direction.UP && this.requestedDirection === Direction.DOWN) || 
+            (this.direction === Direction.RIGHT && this.requestedDirection === Direction.LEFT) ||
+            (this.direction === Direction.LEFT && this.requestedDirection === Direction.RIGHT)){
+                this.direction = this.requestedDirection;
+            } else if(Number.isInteger(col) && Number.isInteger(row) && !this.tileMap.wallCollision(col, row, this.requestedDirection)) {
                 this.direction = this.requestedDirection;
             }
         }
