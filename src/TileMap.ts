@@ -124,4 +124,18 @@ export default class TileMap {
             return this.map[row][col + 1] === 1;
         }
     }
+
+    getTile(col: number, row: number) {
+        if(row < 0 || col < 0 || row >= this.map.length || col >= this.map[0].length) {
+            return -1;
+        }
+        return this.map[row][col];
+    }
+
+    setTile(col: number, row: number, value: number) {
+        if(row < 0 || col < 0 || row >= this.map.length || col >= this.map[0].length) {
+            return;
+        }
+        this.map[row][col] = value;
+    }
 }

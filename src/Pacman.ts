@@ -1,4 +1,5 @@
 import TileMap from './TileMap.ts';
+import { getScore, setScore } from './Game.ts';
 export enum Direction {
     UP = 'UP',
     DOWN = 'DOWN',
@@ -63,9 +64,26 @@ export default class Pacman {
                 }
             }
         }
+
+        this.checkPillCollision();
     }
 
     changeDirection(direction: Direction) {
         this.requestedDirection = direction;
+    }
+
+    checkPillCollision() {
+        const row = this.x/this.tileSize;
+        const col = this.y/this.tileSize;
+
+        if(Number.isInteger(row) && Number.isInteger(col)) {
+            if(this.tileMap.getTile(row, col) === 2) {
+                setScore(getScore() + 10);
+                this.tileMap.setTile(row, col, 0);
+            } else if(this.tileMap.getTile(row, col) === 3) {
+                setScore(getScore() + 50);
+                this.tileMap.setTile(row, col, 0);
+            }
+        }
     }
 }

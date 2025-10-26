@@ -2,6 +2,14 @@ import TileMap from './TileMap.ts';
 import Pacman from './Pacman.ts';
 import { Direction } from './Pacman.ts';
 
+let gameScore = 0;
+export function getScore() {
+  return gameScore;
+}
+export function setScore(value: number) {
+  gameScore = value;
+}
+
 const canvas = document.getElementById('canvas') as HTMLCanvasElement;
 const ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
 
@@ -41,6 +49,7 @@ function gameLoop() {
   tileMap.draw();
   pacman.move();
   pacman.draw();
+  score.textContent = 'Score : ' + getScore();
   requestAnimationFrame(gameLoop);
 }
 
