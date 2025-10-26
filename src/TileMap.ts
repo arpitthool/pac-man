@@ -7,7 +7,8 @@ export default class TileMap {
     private mapString: string;
     private startX: number = 0;
     private startY: number = 0;
-
+    private ghostX: number = 0;
+    private ghostY: number = 0;
     constructor(tileSize: number, ctx: CanvasRenderingContext2D) {
         // this.map = this.loadMap(mapString);
         this.mapString = `┌────────────┐┌────────────┐
@@ -64,6 +65,10 @@ export default class TileMap {
                     this.startX = x*this.tileSize + this.tileSize / 2;
                     this.startY = y*this.tileSize;
                     line.push(0)
+                } else if (char === 'B') {
+                    this.ghostX = x*this.tileSize + this.tileSize / 2;
+                    this.ghostY = y*this.tileSize;
+                    line.push(0);
                 } else {
                     line.push(0);
                 }
@@ -75,6 +80,10 @@ export default class TileMap {
 
     getStartPosition() {
         return { x: this.startX, y: this.startY };
+    }
+
+    getGhostPosition() {
+        return { x: this.ghostX, y: this.ghostY };
     }
 
     setCanvasSize() {

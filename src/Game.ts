@@ -1,6 +1,7 @@
 import TileMap from './TileMap.ts';
 import Pacman from './Pacman.ts';
 import { Direction } from './Pacman.ts';
+import Ghost from './Ghost.ts';
 
 let gameScore = 0;
 export function getScore() {
@@ -29,6 +30,9 @@ tileMap.setCanvasSize();
 const startPosition = tileMap.getStartPosition();
 const pacman = new Pacman(startPosition.x, startPosition.y, tileSize, ctx, tileMap);
 
+const ghostPosition = tileMap.getGhostPosition();
+const ghost = new Ghost(ghostPosition.x, ghostPosition.y, tileSize, ctx, tileMap);
+
 window.addEventListener('keydown', (event) => {
   if (event.key === 'ArrowUp') {
     pacman.changeDirection(Direction.UP);
@@ -49,6 +53,8 @@ function gameLoop() {
   tileMap.draw();
   pacman.move();
   pacman.draw();
+  ghost.move();
+  ghost.draw();
   score.textContent = 'Score : ' + getScore();
   requestAnimationFrame(gameLoop);
 }
