@@ -84,4 +84,16 @@ export default class Ghost {
         const directions = [Direction.UP, Direction.DOWN, Direction.LEFT, Direction.RIGHT];
         return directions[Math.floor(Math.random() * directions.length)];
     }
+
+    getX() {
+        return this.x;
+    }
+
+    getY() {
+        return this.y;
+    }
+
+    getSize() {
+        return this.tileSize;
+    }
 }

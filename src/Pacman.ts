@@ -1,5 +1,5 @@
 import TileMap from './TileMap.ts';
-import { getScore, setScore } from './Game.ts';
+import { getScore, ghosts, setScore } from './Game.ts';
 export enum Direction {
     UP = 'UP',
     DOWN = 'DOWN',
@@ -63,9 +63,7 @@ export default class Pacman {
                     this.x += this.speed;
                 }
             }
-        }
-
-        this.checkPillCollision();
+        } 
     }
 
     changeDirection(direction: Direction) {
@@ -85,5 +83,32 @@ export default class Pacman {
                 this.tileMap.setTile(row, col, 0);
             }
         }
+    }
+
+    checkGhostCollision() {
+        const pacmanXMin = this.x;
+        const pacmanXMax = this.x + this.tileSize;
+        const pacmanYMin = this.y;
+        const pacmanYMax = this.y + this.tileSize;
+        
+        for(let i = 0; i < ghosts.length; i++) {
+            const ghost = ghosts[i];
+            const ghostXMin = ghost.getX();
+            const ghostXMax = ghost.getX() + ghost.getSize();
+            const ghostYMin = ghost.getY();
+            const ghostYMax = ghost.getY() + ghost.getSize();
+            if(pacmanYMin === ghostYMin ){
+                if(ghostXMin <= pacmanXMin && pacmanXMin <= ghostXMax ||
+                ghostXMin <= pacmanXMax && pacmanXMax <= ghostXMax ){
+                    return true;
+                } 
+            } else if(pacmanXMin === ghostXMin ){
+                if(ghostYMin <= pacmanYMin && pacmanYMin <= ghostYMax ||
+                ghostYMin <= pacmanYMax && pacmanYMax <= ghostYMax ){
+                    return true;
+                } 
+            }
+        }
+        return false;
     }
 }
