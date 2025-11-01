@@ -2,6 +2,8 @@
 
 ## Running the app
 
+security test
+
 ### 1. Using npm
 
 1. Install dependencies:
