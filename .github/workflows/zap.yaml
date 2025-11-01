@@ -1,0 +1,97 @@
+name: ZAP Scan
+
+run-name: ${{ github.actor }} is running a ZAP DAST scan 🚀
+
+on:
+  pull_request:
+    branches:
+      - main
+    types: [opened, synchronize]
+  schedule:
+    - cron: "0 7 * * 0"  # 2 AM on Sunday EST
+  workflow_dispatch:  # Manual trigger
+
+jobs:
+  zap_scan:
+    runs-on: self-hosted
+
+    env:
+      WEB_APP_HOST_PORT: 3000
+      WEB_APP_CONTAINER_PORT: 80
+      ZAP_PORT: 8090
+
+    steps:
+
+      - name: Create Docker network
+        run: docker network create zapnet
+
+      - name: Build Docker image
+        run: docker build -t my-web-app-image .
+
+      - name: Start web app using docker
+        run: |
+          docker run -d --name my-web-app --network zapnet -p 127.0.0.1:${{ env.WEB_APP_HOST_PORT }}:${{ env.WEB_APP_CONTAINER_PORT }} my-web-app-image
+          echo "Waiting for Web app to start..."
+          until curl -sSf http://localhost:${{ env.WEB_APP_HOST_PORT }}; do sleep 5; done
+
+      - name: Start ZAP server
+        run: |
+          docker pull ghcr.io/zaproxy/zaproxy:stable
+          docker pull zaproxy/zap-stable
+          docker run -d --name zap --network zapnet \
+            -p ${{ env.ZAP_PORT }}:${{ env.ZAP_PORT }} \
+            zaproxy/zap-stable \
+            zap.sh -daemon -port ${{ env.ZAP_PORT }} -host 0.0.0.0 \
+              -config api.addrs.addr.name=.* \
+              -config api.addrs.addr.regex=true \
+              -config api.key=${{ secrets.ZAP_API_KEY }}
+
+      - name: Wait for ZAP to start
+        run: |
+          echo "Waiting for ZAP..."
+          until curl -s http://localhost:${{ env.ZAP_PORT }}; do sleep 5; done
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Create a place holder report file. Replace this with your actual scan output.
+      - name: Create a sample file
+        run: echo "This is a test file." > security_report.txt
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: pip install -r .security/requirements.txt
+
+      - name: Run ZAP Security Scan
+        run: python3 .security/basic-scan.py
+        env:
+          ZAP_API_KEY: ${{ secrets.ZAP_API_KEY }}
+          ZAP_PORT: ${{ env.ZAP_PORT }}
+          TARGET_URL: http://my-web-app:${{ env.WEB_APP_CONTAINER_PORT }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          ZAP_HOST: http://localhost
+          GITHUB_TOKEN: ${{ secrets.GH_BOT_TOKEN }}
+          GITHUB_REPO: ${{ github.repository }}
+          GITHUB_PR_NUMBER: ${{ github.event.pull_request.number || '' }}  # If PR exists
+
+      - name: Upload Security Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-report
+          path: security_report.txt
+
+      - name: Terminate web app
+        if: always()
+        run: docker rm -f my-web-app
+
+      - name: Stop ZAP
+        if: always()
+        run: docker rm -f zap
+
+      - name: Remove Docker network
+        if: always()
+        run: docker network rm zapnet
