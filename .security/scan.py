@@ -123,15 +123,16 @@ else:
 # ✅ Sort and save alerts in JSON file
 suffix = os.getenv("REPORT_SUFFIX", "")   # main or pr or empty if not set
 json_report_filename = f"security_report_{suffix}.json"
-sort_and_save_alerts(zap.core.alerts(), json_report_filename)
+alerts = sort_and_save_alerts(zap.core.alerts(), json_report_filename)
 print(f"📄 JSON report saved as: {json_report_filename}")
 
-alert_diff()
+
 
 # ✅ Process and summarize alerts
 if suffix == "pr":
-    final_summary = process_alerts("new_alerts.json", "new_alerts_security_report.txt")
-    final_summary += process_alerts("common_alerts.json", "old_alerts_security_report.txt")
+    alert_diff("security_report_main.json", "security_report_pr.json")
+
+    final_summary = process_alerts(alerts)
 
     resolved_alerts = count_alerts("resolved_alerts.json")
     if resolved_alerts > 0:

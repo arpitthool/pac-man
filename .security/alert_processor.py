@@ -176,14 +176,14 @@ def create_alert_summaries(alerts):
 
     return alert_summaries, total_processed_alerts, fail_risk_alerts
 
-def process_alerts(alerts_json_filename: str = "security_report_pr.json", output_filename: str = "security_report.txt"):
+def process_alerts(alerts):
     """Main entry to filter alerts, selectively summarize, and generate the final report."""
 
     # load alerts from JSON file
-    with open(alerts_json_filename, "r", encoding="utf-8") as f:
-        alerts = json.load(f)
+    # with open(alerts_json_filename, "r", encoding="utf-8") as f:
+    #     alerts = json.load(f)
 
-    print(f"✅ Processing {len(alerts)} alerts from {alerts_json_filename}")
+    # print(f"✅ Processing {len(alerts)} alerts from {alerts_json_filename}")
     if(len(alerts) == 0):
         print("⚠️ No alerts to process")
         return "No alerts to process"
