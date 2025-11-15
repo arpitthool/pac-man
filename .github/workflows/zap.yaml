@@ -89,7 +89,7 @@ jobs:
 
       - name: Build Docker image for PR Branch
         run: |
-          docker rmi my-web-app-pr:latest || true
+          docker rmi my-web-app-pr:latest || echo "Docker image for PR branch not found"
           docker build -t my-web-app-pr:latest .
           echo "Docker image built for PR branch"
 
@@ -158,7 +158,7 @@ jobs:
       - name: Delete web app for Main Branch
         if: always()
         run: |
-          docker rm -f my-web-app-main || true
+          docker rm -f my-web-app-main || echo "Docker image for Main branch not found"
           docker rmi my-web-app-main:latest || true
           echo "Main branch web app deleted"
 
@@ -171,9 +171,9 @@ jobs:
           echo "Files in the current directory:"
           ls -la . || echo "No files found"
           echo "Files in ./security directory:"
-          ls -la ./security/ || echo "No security directory found"
+          ls -la .security/ || echo "No security directory found"
           echo "Comparing the security report of main and pr"
-          python3 ./security/alert_diff.py --main security_report_main.json --pr security_report_pr.json
+          python3 .security/alert_diff.py --main security_report_main.json --pr security_report_pr.json
 
       - name: Upload Security Report
         uses: actions/upload-artifact@v4
