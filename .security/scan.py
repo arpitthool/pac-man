@@ -12,7 +12,7 @@ sys.path.insert(0, script_dir)
 
 from alert_processor import process_alerts, sort_and_save_alerts, count_alerts
 from github import post_pr_comment
-
+from alert_diff import alert_diff
 # Load environment variables
 load_dotenv()
 
@@ -126,15 +126,17 @@ json_report_filename = f"security_report_{suffix}.json"
 sort_and_save_alerts(zap.core.alerts(), json_report_filename)
 print(f"📄 JSON report saved as: {json_report_filename}")
 
-# # ✅ Process and summarize alerts
-# if suffix == "pr":
-#     final_summary = process_alerts("new_alerts.json", "new_alerts_security_report.txt")
-#     final_summary += process_alerts("common_alerts.json", "old_alerts_security_report.txt")
+alert_diff()
 
-#     resolved_alerts = count_alerts("resolved_alerts.json")
-#     if resolved_alerts > 0:
-#         final_summary += f"\n\n✅ {resolved_alerts} older alerts were resolved in this PR, which is good news!"
+# ✅ Process and summarize alerts
+if suffix == "pr":
+    final_summary = process_alerts("new_alerts.json", "new_alerts_security_report.txt")
+    final_summary += process_alerts("common_alerts.json", "old_alerts_security_report.txt")
 
-#     # ✅ Post final summary as PR comment
-#     artifact_link = f"https://github.com/{GITHUB_REPO}/actions/runs/{os.getenv('GITHUB_RUN_ID')}"
-#     post_pr_comment(f"### Security Scan Summary 🚨\n\n```\n{final_summary}\n```\n📂 **[Download Full Report]({artifact_link})**")
+    resolved_alerts = count_alerts("resolved_alerts.json")
+    if resolved_alerts > 0:
+        final_summary += f"\n\n✅ {resolved_alerts} older alerts were resolved in this PR, which is good news!"
+
+    # ✅ Post final summary as PR comment
+    artifact_link = f"https://github.com/{GITHUB_REPO}/actions/runs/{os.getenv('GITHUB_RUN_ID')}"
+    post_pr_comment(f"### Security Scan Summary 🚨\n\n```\n{final_summary}\n```\n📂 **[Download Full Report]({artifact_link})**")

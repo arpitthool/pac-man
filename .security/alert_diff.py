@@ -1,22 +1,6 @@
 #!/usr/bin/env python3
-"""
-ZAP JSON Diff (Main vs PR) - JSON Output Only
 
-Compares two ZAP reports (main vs PR) and outputs:
-    - new_alerts.json
-    - resolved_alerts.json
-    - common_alerts.json
 
-Normalization:
-- Ignores differences in hostname, querystring, trailing slashes
-- Drops noisy fields like confidence, evidence, IDs
-- Compares by (pluginId, alert, risk, cweid, normalized path, param)
-
-Usage:
-    python zap_diff_json.py --main security_report_main.json --pr security_report_pr.json
-"""
-
-import argparse
 import json
 from urllib.parse import urlparse
 from pathlib import Path
@@ -92,22 +76,28 @@ def normalize_alerts(path: Path):
         norm_map[sig] = a
     return norm_set, norm_map
 
+def alert_diff (main_report_filename: str = "security_report_main.json", pr_report_filename: str = "security_report_pr.json"):
+    """
+    ZAP JSON Diff (Main vs PR) - JSON Output Only
 
-# ------------------------------------------------------------
-# Main Comparison Logic
-# ------------------------------------------------------------
+    Compares two ZAP reports (main vs PR) and outputs:
+        - new_alerts.json
+        - resolved_alerts.json
+        - common_alerts.json
 
-def main():
-    parser = argparse.ArgumentParser(description="Compare two ZAP JSON reports and output new/resolved/common alerts.")
-    parser.add_argument("--main", required=True, type=Path, help="Path to main branch ZAP JSON")
-    parser.add_argument("--pr", required=True, type=Path, help="Path to PR branch ZAP JSON")
-    args = parser.parse_args()
+    Normalization:
+    - Ignores differences in hostname, querystring, trailing slashes
+    - Drops noisy fields like confidence, evidence, IDs
+    - Compares by (pluginId, alert, risk, cweid, normalized path, param)
 
-    print(f"[INFO] Loading main report: {args.main}")
-    main_set, main_map = normalize_alerts(args.main)
+    Usage:
+        python zap_diff_json.py --main security_report_main.json --pr security_report_pr.json
+    """
+    print(f"[INFO] Loading main report: {main_report_filename}")
+    main_set, main_map = normalize_alerts(Path(main_report_filename))
 
-    print(f"[INFO] Loading PR report: {args.pr}")
-    pr_set, pr_map = normalize_alerts(args.pr)
+    print(f"[INFO] Loading PR report: {pr_report_filename}")
+    pr_set, pr_map = normalize_alerts(Path(pr_report_filename))
 
     new_signatures = pr_set - main_set
     resolved_signatures = main_set - pr_set
@@ -141,7 +131,3 @@ def main():
         print("\nTop NEW alerts (up to 10):")
         for i, alert in enumerate(new_alerts[:10]):
             print(f"- [{alert.get('risk')}] {alert.get('alert')} @ {normalize_url(alert.get('url',''))}")
-
-
-if __name__ == "__main__":
-    main()

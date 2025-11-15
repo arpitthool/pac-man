@@ -170,17 +170,17 @@ jobs:
           echo "Comparing the security report of main and pr"
           python3 .security/alert_diff.py --main security_report_main.json --pr security_report_pr.json
 
-      - name: Post PR summary to GitHub PR
-        run: |
-          echo "Posting PR summary to GitHub PR..."
-          python3 .security/post_pr_summary.py
-          echo "PR summary posted to GitHub PR"
-        env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          GITHUB_TOKEN: ${{ secrets.GH_BOT_TOKEN }}
-          GITHUB_REPO: ${{ github.repository }}
-          GITHUB_PR_NUMBER: ${{ github.event.pull_request.number || '' }}  # If PR exists
-          REPORT_SUFFIX: pr
+      # - name: Post PR summary to GitHub PR
+      #   run: |
+      #     echo "Posting PR summary to GitHub PR..."
+      #     python3 .security/post_pr_summary.py
+      #     echo "PR summary posted to GitHub PR"
+      #   env:
+      #     OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      #     GITHUB_TOKEN: ${{ secrets.GH_BOT_TOKEN }}
+      #     GITHUB_REPO: ${{ github.repository }}
+      #     GITHUB_PR_NUMBER: ${{ github.event.pull_request.number || '' }}  # If PR exists
+      #     REPORT_SUFFIX: pr
 
       - name: Upload Security Report
         uses: actions/upload-artifact@v4
