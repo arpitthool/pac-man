@@ -167,7 +167,9 @@ jobs:
         run: |
           # print the current branch
           echo "Current branch: ${{ github.head_ref }}"
-          # print the files in ./security directory
+          # print the files in the current directory
+          echo "Files in the current directory:"
+          ls -la . || echo "No files found"
           echo "Files in ./security directory:"
           ls -la ./security/ || echo "No security directory found"
           echo "Comparing the security report of main and pr"
