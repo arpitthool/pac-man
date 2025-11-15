@@ -202,6 +202,8 @@ def process_alerts(alerts):
         alerts_count = total_processed_alerts
     )
 
+    output_filename = "security_report.txt"
+
     # Save results
     with open(output_filename, "w", encoding="utf-8") as f:
         f.write("=== Individual Alert Summaries ===\n")
