@@ -129,6 +129,8 @@ jobs:
           docker rmi my-web-app-main:latest || true
           docker build -t my-web-app-main:latest .
           echo "Docker image built for main branch"
+          # switch back to the PR branch
+          git checkout ${{ github.head_ref }} || echo "Failed to switch back to PR branch"
 
       - name: Start web app for Main Branch
         run: |
