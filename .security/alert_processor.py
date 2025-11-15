@@ -183,6 +183,11 @@ def process_alerts(alerts_json_filename: str = "security_report_pr.json", output
     with open(alerts_json_filename, "r", encoding="utf-8") as f:
         alerts = json.load(f)
 
+    print(f"✅ Processing {len(alerts)} alerts from {alerts_json_filename}")
+    if(len(alerts) == 0):
+        print("⚠️ No alerts to process")
+        return "No alerts to process"
+
     # Create alert summaries
     alert_summaries, total_processed_alerts, fail_risk_alerts = create_alert_summaries(alerts)
 
