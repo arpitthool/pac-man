@@ -7,19 +7,15 @@ import os
 import sys
 from dotenv import load_dotenv
 
+# Add .security directory to Python path so imports work when run from project root
+script_dir = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, script_dir)
+
+from alert_processor import process_alerts, count_alerts
+from github import post_pr_comment
+
 def post_pr_summary():
-    # Add .security directory to Python path so imports work when run from project root
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    sys.path.insert(0, script_dir)
 
-    from alert_processor import process_alerts, count_alerts
-    from github import post_pr_comment
-
-    # Load environment variables
-    load_dotenv()
-
-    # Get environment variables
-    suffix = os.getenv("REPORT_SUFFIX", "")  # main or pr or empty if not set
     GITHUB_REPO = os.getenv("GITHUB_REPO")  # Format: "owner/repo"
 
     # ✅ Process and summarize alerts
