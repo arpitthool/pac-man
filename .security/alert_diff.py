@@ -12,8 +12,27 @@ from pathlib import Path
 
 def read_json(path: Path):
     """Read and parse JSON safely."""
-    with path.open("r", encoding="utf-8") as f:
-        return json.load(f)
+    if not path.exists():
+        print(f"[WARN] File does not exist: {path}")
+        return []
+    
+    if path.stat().st_size == 0:
+        print(f"[WARN] File is empty: {path}")
+        return []
+    
+    try:
+        with path.open("r", encoding="utf-8") as f:
+            content = f.read().strip()
+            if not content:
+                print(f"[WARN] File contains only whitespace: {path}")
+                return []
+            return json.loads(content)
+    except json.JSONDecodeError as e:
+        print(f"[ERROR] Invalid JSON in {path}: {e}")
+        return []
+    except Exception as e:
+        print(f"[ERROR] Error reading {path}: {e}")
+        return []
 
 
 def iter_alert_objects(data):
@@ -67,6 +86,10 @@ def alert_signature(a):
 def normalize_alerts(path: Path):
     """Return (set of signatures, map of signature→alert) for a given ZAP file."""
     data = read_json(path)
+    if not data:
+        print(f"[INFO] No alerts found in {path}, returning empty set and map")
+        return set(), {}
+    
     alerts = list(iter_alert_objects(data))
     norm_set = set()
     norm_map = {}
