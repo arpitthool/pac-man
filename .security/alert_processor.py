@@ -3,6 +3,7 @@ import os
 import json
 import yaml
 import sys
+from datetime import datetime
 from dotenv import load_dotenv
 from collections import Counter
 
@@ -41,17 +42,40 @@ def load_prompt(path: str, default: str) -> str:
     return default
 
 def get_summary(alert):
-    """Summarize an individual alert using ChatGPT and a user-defined prompt."""
+    """Summarize an individual alert using ChatGPT and a user-defined prompt.
+    If pr_changes.txt exists, includes PR code changes for better context-aware suggestions."""
     system_prompt = load_prompt(
         ".security/prompt_alert.txt",
         "You are a cybersecurity expert. Summarize the following security alert."
     )
 
+    # Build user message with alert
+    user_content = json.dumps(alert, indent=2)
+    
+    # Load PR code changes if available (created by GitHub Actions workflow)
+    pr_changes_path = "pr_changes.txt"
+    if os.path.exists(pr_changes_path):
+        try:
+            with open(pr_changes_path, "r", encoding="utf-8") as f:
+                pr_changes = f.read().strip()
+            
+            if pr_changes:
+                # Limit PR changes size to avoid token limits (keep first 8000 chars)
+                if len(pr_changes) > 8000:
+                    pr_changes = pr_changes[:8000] + "\n\n... (truncated for length)"
+                
+                user_content += "\n\n--- PR Code Changes (for context) ---\n"
+                user_content += pr_changes
+                user_content += "\n\n--- End of PR Code Changes ---"
+                user_content += "\n\nPlease provide suggestions for fixing this security issue considering the code changes shown above. If the vulnerability is related to the changed code, suggest specific fixes that account for the PR changes."
+        except Exception as e:
+            print(f"⚠️ Warning: Could not read PR changes from {pr_changes_path}: {e}")
+
     response = client.chat.completions.create(
         model="gpt-4",
         messages=[
             {"role": "system", "content": system_prompt},
-            {"role": "user", "content": json.dumps(alert, indent=2)}
+            {"role": "user", "content": user_content}
         ],
         temperature=0.5
     )
@@ -89,6 +113,28 @@ def generate_final_summary(alert_summaries, all_alerts, summarized_alerts, alert
     )
 
     return stats_intro + response.choices[0].message.content
+
+def sort_alerts_by_risk(alerts):
+    """Sort alerts by risk"""
+    # Define the desired order of risk levels for sorting
+    risk_order = {"high": 0, "medium": 1, "low": 2, "informational": 3}
+
+    # Sort alerts by risk before further processing or saving
+    def alert_risk_key(alert):
+        # Normalize risk string to lowercase and fall back to a large value if missing or unexpected risk
+        return risk_order.get(str(alert.get("risk", "")).lower(), 99)
+
+    sorted_alerts = sorted(alerts, key=alert_risk_key)
+
+    return sorted_alerts
+
+def sort_and_save_alerts(alerts, filename: str):
+    sorted_alerts = sort_alerts_by_risk(alerts)
+
+    with open(filename, "w", encoding="utf-8") as f:
+        json.dump(sorted_alerts, f, indent=2)
+    print(f"📄 JSON report saved as: {filename}")
+    return sorted_alerts
 
 def process_alerts(alerts):
     """Main entry to filter alerts, selectively summarize, and generate the final report."""
