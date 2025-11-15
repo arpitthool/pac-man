@@ -135,12 +135,8 @@ def load_alerts(filename):
 if suffix == "pr":
     alert_diff("security_report_main.json", "security_report_pr.json")
 
-    common_alerts = load_alerts("common_alerts.json")
-
-    print(f"✅ Loaded {len(common_alerts)} common alerts")
-    print(common_alerts[0])
-
-    final_summary = process_alerts(common_alerts)
+    final_summary = process_alerts(load_alerts("common_alerts.json"))
+    final_summary += process_alerts(load_alerts("new_alerts.json"))
 
     resolved_alerts = count_alerts("resolved_alerts.json")
     if resolved_alerts > 0:
