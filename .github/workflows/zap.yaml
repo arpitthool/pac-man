@@ -170,6 +170,12 @@ jobs:
           echo "Comparing the security report of main and pr"
           python3 .security/alert_diff.py --main security_report_main.json --pr security_report_pr.json
 
+      - name: Post PR summary to GitHub PR
+        run: |
+          echo "Posting PR summary to GitHub PR..."
+          python3 .security/post_pr_summary.py
+          echo "PR summary posted to GitHub PR"
+
       - name: Upload Security Report
         uses: actions/upload-artifact@v4
         with:

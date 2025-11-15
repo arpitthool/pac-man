@@ -216,3 +216,25 @@ def process_alerts(alerts_json_filename: str = "security_report_pr.json", output
         print("✅ No blocking alerts found. Proceeding normally.")
 
     return final_summary
+
+def count_alerts(filename):
+    """
+    Count the number of alerts in the provided JSON file.
+    If the file does not exist or is invalid, returns 0.
+    """
+    if not os.path.isfile(filename):
+        print(f"⚠️ File {filename} does not exist")
+        return 0
+    try:
+        with open(filename, "r", encoding="utf-8") as f:
+            alerts = json.load(f)
+            # If alerts is a dict, count its items; if a list, count its length
+            if isinstance(alerts, list):
+                return len(alerts)
+            elif isinstance(alerts, dict):
+                return len(alerts)
+            else:
+                return 0
+    except Exception as e:
+        print(f"⚠️ Error reading {filename}: {e}.")
+        return 0
