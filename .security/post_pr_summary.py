@@ -5,7 +5,6 @@ This script extracts the PR summary logic from scan.py for standalone execution.
 """
 import os
 import sys
-from dotenv import load_dotenv
 
 # Add .security directory to Python path so imports work when run from project root
 script_dir = os.path.dirname(os.path.abspath(__file__))
