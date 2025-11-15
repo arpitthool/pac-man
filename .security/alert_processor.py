@@ -176,8 +176,13 @@ def create_alert_summaries(alerts):
 
     return alert_summaries, total_processed_alerts, fail_risk_alerts
 
-def process_alerts(alerts):
+def process_alerts(alerts_json_filename: str = "security_report_pr.json", output_filename: str = "security_report.txt"):
     """Main entry to filter alerts, selectively summarize, and generate the final report."""
+
+    # load alerts from JSON file
+    with open(alerts_json_filename, "r", encoding="utf-8") as f:
+        alerts = json.load(f)
+
     # Create alert summaries
     alert_summaries, total_processed_alerts, fail_risk_alerts = create_alert_summaries(alerts)
 
@@ -193,8 +198,7 @@ def process_alerts(alerts):
     )
 
     # Save results
-    filename = "security_report.txt"
-    with open(filename, "w", encoding="utf-8") as f:
+    with open(output_filename, "w", encoding="utf-8") as f:
         f.write("=== Individual Alert Summaries ===\n")
         for i, item in enumerate(alert_summaries, 1):
             f.write(f"\nAlert {i}:\n{json.dumps(item['alert'], indent=2)}\n")
@@ -202,7 +206,7 @@ def process_alerts(alerts):
         f.write("\n=== Final Security Report ===\n")
         f.write(final_summary)
 
-    print(f"📄 Security report saved as: {filename}")
+    print(f"📄 Security report saved as: {output_filename}")
 
     # 🚨 Fail the pipeline if needed
     if fail_risk_alerts > 0:
