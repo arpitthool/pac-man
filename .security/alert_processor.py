@@ -41,7 +41,7 @@ def load_prompt(path: str, default: str) -> str:
             return f.read().strip()
     return default
 
-def get_summary(alert):
+def get_summary(alert, include_pr_changes: bool = False):
     """Summarize an individual alert using ChatGPT and a user-defined prompt.
     If pr_changes.txt exists, includes PR code changes for better context-aware suggestions."""
     system_prompt = load_prompt(
@@ -54,7 +54,7 @@ def get_summary(alert):
     
     # Load PR code changes if available (created by GitHub Actions workflow)
     pr_changes_path = "pr_changes.txt"
-    if os.path.exists(pr_changes_path):
+    if include_pr_changes and os.path.exists(pr_changes_path):
         try:
             with open(pr_changes_path, "r", encoding="utf-8") as f:
                 pr_changes = f.read().strip()
@@ -136,8 +136,9 @@ def sort_and_save_alerts(alerts, filename: str):
     print(f"📄 JSON report saved as: {filename}")
     return sorted_alerts
 
-def process_alerts(alerts):
-    """Main entry to filter alerts, selectively summarize, and generate the final report."""
+
+def create_alert_summaries(alerts):
+    """Create alert summaries and count the number of total processed alerts and pipeline-failing alerts."""
     alert_summaries = []
     fail_risk_alerts = 0  # Counter for pipeline-failing alerts
     total_processed_alerts = 0  # To respect alerts_limit
@@ -173,6 +174,13 @@ def process_alerts(alerts):
             "summary": summary
         })
 
+    return alert_summaries, total_processed_alerts, fail_risk_alerts
+
+def process_alerts(alerts):
+    """Main entry to filter alerts, selectively summarize, and generate the final report."""
+    # Create alert summaries
+    alert_summaries, total_processed_alerts, fail_risk_alerts = create_alert_summaries(alerts)
+
     if not alert_summaries:
         print("⚠️ No alerts to include based on config.")
         return "No alerts to include based on the configured risk levels."
@@ -185,7 +193,8 @@ def process_alerts(alerts):
     )
 
     # Save results
-    with open("security_report.txt", "w", encoding="utf-8") as f:
+    filename = "security_report.txt"
+    with open(filename, "w", encoding="utf-8") as f:
         f.write("=== Individual Alert Summaries ===\n")
         for i, item in enumerate(alert_summaries, 1):
             f.write(f"\nAlert {i}:\n{json.dumps(item['alert'], indent=2)}\n")
@@ -193,7 +202,7 @@ def process_alerts(alerts):
         f.write("\n=== Final Security Report ===\n")
         f.write(final_summary)
 
-    print("📄 Security report saved as: security_report.txt")
+    print(f"📄 Security report saved as: {filename}")
 
     # 🚨 Fail the pipeline if needed
     if fail_risk_alerts > 0:
