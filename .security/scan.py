@@ -3,6 +3,7 @@ import time
 import os
 import sys
 import yaml
+import json
 from dotenv import load_dotenv
 from zapv2 import ZAPv2
 
@@ -126,13 +127,20 @@ json_report_filename = f"security_report_{suffix}.json"
 alerts = sort_and_save_alerts(zap.core.alerts(), json_report_filename)
 print(f"📄 JSON report saved as: {json_report_filename}")
 
-
+def load_alerts(filename):
+    with open(filename, "r", encoding="utf-8") as f:
+        return json.load(f)
 
 # ✅ Process and summarize alerts
 if suffix == "pr":
     alert_diff("security_report_main.json", "security_report_pr.json")
 
-    final_summary = process_alerts(alerts)
+    common_alerts = load_alerts("common_alerts.json")
+
+    print(f"✅ Loaded {len(common_alerts)} common alerts")
+    print(common_alerts[0])
+
+    final_summary = process_alerts(common_alerts)
 
     resolved_alerts = count_alerts("resolved_alerts.json")
     if resolved_alerts > 0:
