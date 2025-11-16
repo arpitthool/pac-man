@@ -144,6 +144,9 @@ def create_alert_summaries(alerts):
     total_processed_alerts = 0  # To respect alerts_limit
 
     print(f"✅ Starting to process {len(alerts)} alert(s).")
+    
+    # Sort alerts by risk
+    alerts = sort_alerts_by_risk(alerts)
 
     for alert in alerts:
         risk_level = alert.get("risk", "").lower()
