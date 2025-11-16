@@ -187,9 +187,6 @@ if suffix == "pr":
     if len(common_alerts_data) > 0:
         combined_final_summary += f"⚙️ OLDER ALERTS SUMMARY:\n{common_final_summary}\n\n"
     
-    combined_final_summary += f"❌ Number of new alerts found in this PR: {new_alerts_count}\n"
-    combined_final_summary += f"✅ Number of older alerts resolved in this PR: {resolved_alerts_count}"
-    
     report_content += combined_final_summary
     
     # Write the structured report

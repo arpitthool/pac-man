@@ -100,7 +100,7 @@ def generate_final_summary(
         f"📊 **Risk Level Breakdown:**\n" +
         "".join(f"- {level}: {count}\n" for level, count in risk_counts.items()) + "\n" +
         f"✅ **Alerts summarized in this report**: {', '.join(summarized_levels) or 'None'}.\n" +
-        f"🔒 This report includes total **{alerts_count} alert(s)**.\n\n"
+        f"🔒 Total number of alerts in the report: {alerts_count}.\n\n"
     )
 
     summaries_text = "\n\n".join(item["summary"] for item in alert_summaries)
