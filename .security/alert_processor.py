@@ -81,8 +81,15 @@ def get_summary(alert, include_pr_changes: bool = False, prompt_path: str = ".se
     )
     return response.choices[0].message.content
 
-def generate_final_summary(alert_summaries, all_alerts, summarized_alerts, alerts_count):
+def generate_final_summary(
+    alert_summaries, 
+    all_alerts, 
+    summarized_alerts, 
+    alerts_count, 
+    prompt_path: str = ".security/prompts/prompt_final.txt"):
+
     """Generate final report from summarized alerts and append ChatGPT's high-level summary."""
+    
     total_alerts = len(all_alerts)
     risk_counts = Counter(alert.get("risk", "Unknown").capitalize() for alert in all_alerts)
     summarized_levels = sorted(set(alert.get("risk", "Unknown").capitalize() for alert in summarized_alerts))
@@ -99,7 +106,7 @@ def generate_final_summary(alert_summaries, all_alerts, summarized_alerts, alert
     summaries_text = "\n\n".join(item["summary"] for item in alert_summaries)
 
     system_prompt = load_prompt(
-        ".security/prompts/prompt_final.txt",
+        prompt_path,
         "You are a security engineer. Analyze the provided summaries and generate a high-level report with urgent issues and recommendations."
     )
 
@@ -187,9 +194,15 @@ def process_alerts_file(alerts_json_filename: str, output_filename: str = "secur
     alerts = load_alerts(alerts_json_filename)
     return process_alerts(alerts, output_filename)
 
-def get_alert_summaries_and_final_summary(alerts, prompt_path: str = ".security/prompts/prompt_alert.txt", include_pr_changes: bool = False):
+def get_alert_summaries_and_final_summary(
+    alerts, 
+    prompt_path: str = ".security/prompts/prompt_alert.txt", 
+    prompt_final_path: str = ".security/prompts/prompt_final.txt", 
+    include_pr_changes: bool = False):
+    
     """Get individual alert summaries and final summary without writing to file.
     Returns tuple: (individual_summaries_text, final_summary_text, fail_risk_alerts_count)"""
+    
     if(len(alerts) == 0):
         return ("No alerts to process", "No alerts to process", 0)
 
@@ -211,7 +224,8 @@ def get_alert_summaries_and_final_summary(alerts, prompt_path: str = ".security/
         alert_summaries=alert_summaries,
         all_alerts=alerts,
         summarized_alerts=[item["alert"] for item in alert_summaries if not item["summary"].startswith("*No summary")],
-        alerts_count = total_processed_alerts
+        alerts_count = total_processed_alerts,
+        prompt_path=prompt_final_path
     )
 
     return (summaries_text, final_summary, fail_risk_alerts)
