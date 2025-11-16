@@ -21,4 +21,4 @@ scans:
   ajax_spider: false
   ajax_spider_timeout: 180  # timeout in seconds
   passive: true
-  active: false
+  active: true
