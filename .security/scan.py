@@ -128,6 +128,7 @@ alerts = sort_and_save_alerts(zap.core.alerts(), json_report_filename)
 print(f"📄 JSON report saved as: {json_report_filename}")
 
 # ✅ Process and summarize alerts
+# Note : PR scan should be done after the main scan is done
 if suffix == "pr":
     alert_diff("security_report_main.json", "security_report_pr.json")
     
