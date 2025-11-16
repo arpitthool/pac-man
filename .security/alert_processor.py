@@ -184,6 +184,35 @@ def process_alerts_file(alerts_json_filename: str, output_filename: str = "secur
     alerts = load_alerts(alerts_json_filename)
     return process_alerts(alerts, output_filename)
 
+def get_alert_summaries_and_final_summary(alerts):
+    """Get individual alert summaries and final summary without writing to file.
+    Returns tuple: (individual_summaries_text, final_summary_text, fail_risk_alerts_count)"""
+    if(len(alerts) == 0):
+        return ("No alerts to process", "No alerts to process", 0)
+
+    # Create alert summaries
+    alert_summaries, total_processed_alerts, fail_risk_alerts = create_alert_summaries(alerts)
+
+    if not alert_summaries:
+        return ("No alerts to include based on the configured risk levels.", 
+                "No alerts to include based on the configured risk levels.", fail_risk_alerts)
+
+    # Format individual summaries
+    summaries_text = ""
+    for i, item in enumerate(alert_summaries, 1):
+        summaries_text += f"\nAlert {i}:\n{json.dumps(item['alert'], indent=2)}\n"
+        summaries_text += f"Summary:\n{item['summary']}\n"
+
+    # Generate final summary
+    final_summary = generate_final_summary(
+        alert_summaries=alert_summaries,
+        all_alerts=alerts,
+        summarized_alerts=[item["alert"] for item in alert_summaries if not item["summary"].startswith("*No summary")],
+        alerts_count = total_processed_alerts
+    )
+
+    return (summaries_text, final_summary, fail_risk_alerts)
+
 def process_alerts(alerts, output_filename: str = "security_report.txt"):
     """Main entry to filter alerts, selectively summarize, and generate the final report."""
 

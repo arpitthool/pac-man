@@ -11,7 +11,7 @@ from zapv2 import ZAPv2
 script_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, script_dir)
 
-from alert_processor import process_alerts_file, sort_and_save_alerts, count_alerts
+from alert_processor import process_alerts_file, sort_and_save_alerts, count_alerts, get_alert_summaries_and_final_summary, load_alerts
 from github import post_pr_comment
 from alert_diff import alert_diff
 # Load environment variables
@@ -132,15 +132,59 @@ print(f"📄 JSON report saved as: {json_report_filename}")
 if suffix == "pr":
     alert_diff("security_report_main.json", "security_report_pr.json")
     
-    final_summary = process_alerts_file("common_alerts.json")
-    final_summary += process_alerts_file("new_alerts.json")
-
-    resolved_alerts = count_alerts("resolved_alerts.json")
-    new_alerts = count_alerts("new_alerts.json")
-
-    final_summary += f"\n\n❌ Number of new alerts found in this PR: {new_alerts}"
-    final_summary += f"\n\n✅ Number of older alerts resolved in this PR: {resolved_alerts}"
+    # Process each alerts file to get summaries
+    new_alerts_data = load_alerts("new_alerts.json")
+    resolved_alerts_data = load_alerts("resolved_alerts.json")
+    common_alerts_data = load_alerts("common_alerts.json")
+    
+    # Get summaries for each category
+    new_summaries, new_final_summary, new_fail_count = get_alert_summaries_and_final_summary(new_alerts_data)
+    resolved_summaries, resolved_final_summary, resolved_fail_count = get_alert_summaries_and_final_summary(resolved_alerts_data)
+    common_summaries, common_final_summary, common_fail_count = get_alert_summaries_and_final_summary(common_alerts_data)
+    
+    # Check for pipeline-failing alerts
+    total_fail_count = new_fail_count + resolved_fail_count + common_fail_count
+    if total_fail_count > 0:
+        fail_levels = config.get('fail_on_levels', [])
+        fail_levels_str = ', '.join(fail_levels) if fail_levels else 'configured risk levels'
+        print(f"❌ Found {total_fail_count} alert(s) at level(s) [{fail_levels_str}] configured to fail the pipeline.")
+        sys.exit(1)
+    
+    # Build structured report
+    resolved_alerts_count = count_alerts("resolved_alerts.json")
+    new_alerts_count = count_alerts("new_alerts.json")
+    
+    # Create the structured report
+    report_content = "==== NEW ALERTS ====\n\n"
+    report_content += new_summaries if new_summaries else "No new alerts.\n"
+    
+    report_content += "\n\n====RESOLVED ALERTS====\n\n"
+    report_content += resolved_summaries if resolved_summaries else "No resolved alerts.\n"
+    
+    report_content += "\n\n===== OLDER ALERTS=====\n\n"
+    report_content += common_summaries if common_summaries else "No older alerts.\n"
+    
+    report_content += "\n\n==== FINAL SUMMARY ====\n\n"
+    # Combine final summaries from all categories
+    combined_final_summary = ""
+    if new_alerts_count > 0:
+        combined_final_summary += f"🆕 NEW ALERTS SUMMARY:\n{new_final_summary}\n\n"
+    if resolved_alerts_count > 0:
+        combined_final_summary += f"✅ RESOLVED ALERTS SUMMARY:\n{resolved_final_summary}\n\n"
+    if len(common_alerts_data) > 0:
+        combined_final_summary += f"⚙️ OLDER ALERTS SUMMARY:\n{common_final_summary}\n\n"
+    
+    combined_final_summary += f"❌ Number of new alerts found in this PR: {new_alerts_count}\n"
+    combined_final_summary += f"✅ Number of older alerts resolved in this PR: {resolved_alerts_count}"
+    
+    report_content += combined_final_summary
+    
+    # Write the structured report
+    with open("security_report.txt", "w", encoding="utf-8") as f:
+        f.write(report_content)
+    
+    print(f"📄 Security report saved as: security_report.txt")
 
     # ✅ Post final summary as PR comment
     artifact_link = f"https://github.com/{GITHUB_REPO}/actions/runs/{os.getenv('GITHUB_RUN_ID')}"
-    post_pr_comment(f"### Security Scan Summary 🚨\n\n```\n{final_summary}\n```\n📂 **[Download Full Report]({artifact_link})**")
+    post_pr_comment(f"### Security Scan Summary 🚨\n\n```\n{combined_final_summary}\n```\n📂 **[Download Full Report]({artifact_link})**")
