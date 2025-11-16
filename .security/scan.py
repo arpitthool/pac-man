@@ -138,12 +138,12 @@ if suffix == "pr":
     common_alerts_data = load_alerts("common_alerts.json")
     
     # Get summaries for each category
-    new_summaries, new_final_summary, new_fail_count = get_alert_summaries_and_final_summary(new_alerts_data)
-    resolved_summaries, resolved_final_summary, resolved_fail_count = get_alert_summaries_and_final_summary(resolved_alerts_data)
-    common_summaries, common_final_summary, common_fail_count = get_alert_summaries_and_final_summary(common_alerts_data)
+    new_summaries, new_final_summary, new_fail_count = get_alert_summaries_and_final_summary(new_alerts_data, prompt_path=".security/prompts/prompt_solved_alert.txt")
+    resolved_summaries, resolved_final_summary, resolved_fail_count = get_alert_summaries_and_final_summary(resolved_alerts_data, prompt_path=".security/prompts/prompt_solved_alert.txt")
+    common_summaries, common_final_summary, common_fail_count = get_alert_summaries_and_final_summary(common_alerts_data, prompt_path=".security/prompts/prompt_solved_alert.txt")
     
     # Check for pipeline-failing alerts
-    total_fail_count = new_fail_count + resolved_fail_count + common_fail_count
+    total_fail_count = new_fail_count + common_fail_count
     if total_fail_count > 0:
         fail_levels = config.get('fail_on_levels', [])
         fail_levels_str = ', '.join(fail_levels) if fail_levels else 'configured risk levels'

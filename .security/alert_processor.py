@@ -41,11 +41,11 @@ def load_prompt(path: str, default: str) -> str:
             return f.read().strip()
     return default
 
-def get_summary(alert, include_pr_changes: bool = False):
+def get_summary(alert, include_pr_changes: bool = False, prompt_path: str = ".security/prompts/prompt_alert.txt"):
     """Summarize an individual alert using ChatGPT and a user-defined prompt.
     If pr_changes.txt exists, includes PR code changes for better context-aware suggestions."""
     system_prompt = load_prompt(
-        ".security/prompts/prompt_alert.txt",
+        prompt_path,
         "You are a cybersecurity expert. Summarize the following security alert."
     )
 
@@ -137,14 +137,14 @@ def sort_and_save_alerts(alerts, filename: str):
     return sorted_alerts
 
 
-def create_alert_summaries(alerts):
+def create_alert_summaries(alerts, prompt_path: str = ".security/prompts/prompt_alert.txt"):
     """Create alert summaries and count the number of total processed alerts and pipeline-failing alerts."""
     alert_summaries = []
     fail_risk_alerts = 0  # Counter for pipeline-failing alerts
     total_processed_alerts = 0  # To respect alerts_limit
 
     print(f"✅ Starting to process {len(alerts)} alert(s).")
-    
+
     # Sort alerts by risk
     alerts = sort_alerts_by_risk(alerts)
 
@@ -168,7 +168,7 @@ def create_alert_summaries(alerts):
 
         # Summarize only if risk is in summarize_levels
         if risk_level in summarize_levels:
-            summary = get_summary(alert)
+            summary = get_summary(alert, prompt_path=prompt_path)
         else:
             summary = "*No summary generated for this alert based on configuration.*"
 
@@ -187,14 +187,14 @@ def process_alerts_file(alerts_json_filename: str, output_filename: str = "secur
     alerts = load_alerts(alerts_json_filename)
     return process_alerts(alerts, output_filename)
 
-def get_alert_summaries_and_final_summary(alerts):
+def get_alert_summaries_and_final_summary(alerts, prompt_path: str = ".security/prompts/prompt_alert.txt"):
     """Get individual alert summaries and final summary without writing to file.
     Returns tuple: (individual_summaries_text, final_summary_text, fail_risk_alerts_count)"""
     if(len(alerts) == 0):
         return ("No alerts to process", "No alerts to process", 0)
 
     # Create alert summaries
-    alert_summaries, total_processed_alerts, fail_risk_alerts = create_alert_summaries(alerts)
+    alert_summaries, total_processed_alerts, fail_risk_alerts = create_alert_summaries(alerts, prompt_path=prompt_path)
 
     if not alert_summaries:
         return ("No alerts to include based on the configured risk levels.", 
