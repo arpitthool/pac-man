@@ -171,21 +171,23 @@ if suffix == "pr":
     report_content = "==== NEW ALERTS ====\n\n"
     report_content += new_summaries if new_summaries else "No new alerts.\n"
     
-    report_content += "\n\n====RESOLVED ALERTS====\n\n"
+    report_content += "\n\n==== RESOLVED ALERTS ====\n\n"
     report_content += resolved_summaries if resolved_summaries else "No resolved alerts.\n"
     
-    report_content += "\n\n===== OLDER ALERTS=====\n\n"
+    report_content += "\n\n===== OLDER ALERTS =====\n\n"
     report_content += common_summaries if common_summaries else "No older alerts.\n"
     
     report_content += "\n\n==== FINAL SUMMARY ====\n\n"
+    
     # Combine final summaries from all categories
     combined_final_summary = ""
+
     if new_alerts_count > 0:
-        combined_final_summary += f"🆕 NEW ALERTS SUMMARY:\n{new_final_summary}\n\n"
-    if resolved_alerts_count > 0:
-        combined_final_summary += f"✅ RESOLVED ALERTS SUMMARY:\n{resolved_final_summary}\n\n"
+        combined_final_summary += f"========================= 🆕 NEW ALERTS SUMMARY =========================\n{new_final_summary}\n\n"
     if len(common_alerts_data) > 0:
-        combined_final_summary += f"⚙️ OLDER ALERTS SUMMARY:\n{common_final_summary}\n\n"
+        combined_final_summary += f"========================= ⚙️ OLDER ALERTS SUMMARY =========================\n{common_final_summary}\n\n"
+    if resolved_alerts_count > 0:
+        combined_final_summary += f"========================= ✅ RESOLVED ALERTS SUMMARY =========================\n{resolved_final_summary}\n\n"
     
     report_content += combined_final_summary
     
