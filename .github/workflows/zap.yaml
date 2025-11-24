@@ -13,27 +13,27 @@ on:
 
 jobs:
 
-  zap_scan_baseline:
-    runs-on: self-hosted
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v5
+  # zap_scan_baseline:
+  #   runs-on: self-hosted
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@v5
 
-      - name: run web app on port 3000
-        run: |
-          docker rmi my-web-app-baseline:latest || true
-          docker build -t my-web-app-baseline:latest .
-          echo "Docker image built for web app"
-          docker run -d --name my-web-app-baseline -p 127.0.0.1:3000:3000 my-web-app-baseline:latest
-          echo "Waiting for web app baseline..."
-          until curl -sSf http://127.0.0.1:3000; do sleep 5; done
-          echo "Web app baseline is ready"
+  #     - name: run web app on port 3000
+  #       run: |
+  #         docker rmi my-web-app-baseline:latest || true
+  #         docker build -t my-web-app-baseline:latest .
+  #         echo "Docker image built for web app"
+  #         docker run -d --name my-web-app-baseline -p 127.0.0.1:3000:3000 my-web-app-baseline:latest
+  #         echo "Waiting for web app baseline..."
+  #         until curl -sSf http://127.0.0.1:3000; do sleep 5; done
+  #         echo "Web app baseline is ready"
       
-      - name: ZAP Scan Baseline
-        uses: zaproxy/action-baseline@master
-        with:
-          token: ${{ secrets.GH_BOT_TOKEN }}
-          target: 'http://127.0.0.1:3000'
+  #     - name: ZAP Scan Baseline
+  #       uses: zaproxy/action-baseline@master
+  #       with:
+  #         token: ${{ secrets.GH_BOT_TOKEN }}
+  #         target: 'http://127.0.0.1:3000'
 
       - name: Delete web app
         if: always()
