@@ -36,6 +36,7 @@ jobs:
           target: 'http://127.0.0.1:3000'
 
       - name: Delete web app
+        if: always()
         run: |
           docker rm -f my-web-app-baseline || echo "Docker image for Main branch not found"
           docker rmi my-web-app-baseline:latest || true
