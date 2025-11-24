@@ -1,5 +1,7 @@
 # Pac-Man
 
+<img width="908" height="923" alt="Screenshot from 2025-11-23 23-14-49" src="https://github.com/user-attachments/assets/fc3e382c-5c32-4b41-82f4-c98940461cc1" />
+
 ## Running the app
 
 security test
