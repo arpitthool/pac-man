@@ -35,12 +35,12 @@ jobs:
   #         token: ${{ secrets.GH_BOT_TOKEN }}
   #         target: 'http://127.0.0.1:3000'
 
-      - name: Delete web app
-        if: always()
-        run: |
-          docker rm -f my-web-app-baseline || echo "Docker image for Main branch not found"
-          docker rmi my-web-app-baseline:latest || true
-          echo "Web app baseline deleted"
+      # - name: Delete web app
+      #   if: always()
+      #   run: |
+      #     docker rm -f my-web-app-baseline || echo "Docker image for Main branch not found"
+      #     docker rmi my-web-app-baseline:latest || true
+      #     echo "Web app baseline deleted"
 
   zap_scan:
     runs-on: self-hosted
