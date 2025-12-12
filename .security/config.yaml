@@ -4,7 +4,7 @@ summarize_levels:
   - High
   - Medium
   - Low
-  - Informational
+  # - Informational
 
 # Configurable limit on maximum number of alerts to include in each individual report i.e. new alerts, resolved alerts, and older alerts.
 alerts_limit: 15
