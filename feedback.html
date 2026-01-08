@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Feedback - Pac-Man</title>
+    <link rel="stylesheet" href="./src/index.css" />
+    <style>
+      .feedback-container {
+        max-width: 600px;
+        width: 100%;
+        padding: 20px;
+        margin: 20px;
+      }
+      
+      .feedback-form {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+      }
+      
+      .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      
+      label {
+        color: #00ff00;
+        font-weight: 500;
+      }
+      
+      input[type="text"],
+      input[type="email"],
+      textarea {
+        padding: 12px;
+        border: 2px solid #333;
+        border-radius: 4px;
+        background-color: #1a1a1a;
+        color: #fff;
+        font-family: inherit;
+        font-size: 14px;
+      }
+      
+      input[type="text"]:focus,
+      input[type="email"]:focus,
+      textarea:focus {
+        outline: none;
+        border-color: #00ff00;
+        box-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
+      }
+      
+      textarea {
+        min-height: 150px;
+        resize: vertical;
+      }
+      
+      button {
+        padding: 12px 24px;
+        background-color: #00ff00;
+        color: #0a0a0a;
+        border: none;
+        border-radius: 4px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background-color 0.3s, transform 0.1s;
+      }
+      
+      button:hover {
+        background-color: #00cc00;
+        transform: translateY(-2px);
+      }
+      
+      button:active {
+        transform: translateY(0);
+      }
+      
+      .back-button {
+        background-color: #333;
+        color: #fff;
+        margin-bottom: 20px;
+      }
+      
+      .back-button:hover {
+        background-color: #444;
+      }
+      
+      .success-message {
+        color: #00ff00;
+        padding: 12px;
+        border: 2px solid #00ff00;
+        border-radius: 4px;
+        background-color: rgba(0, 255, 0, 0.1);
+        display: none;
+        margin-top: 20px;
+      }
+      
+      .success-message.show {
+        display: block;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="feedback-container">
+      <button class="back-button" onclick="window.location.href='index.html'">← Back to Game</button>
+      
+      <h1>Feedback</h1>
+      <p>We'd love to hear your thoughts about Pac-Man!</p>
+      
+      <form class="feedback-form" id="feedback-form">
+        <div class="form-group">
+          <label for="name">Name (optional)</label>
+          <!-- user name -->
+          <input type="text" id="name" name="name" placeholder="Your name">
+        </div>
+        
+        <div class="form-group">
+          <label for="email">Email (optional)</label>
+          <input type="email" id="email" name="email" placeholder="your.email@example.com">
+        </div>
+        
+        <div class="form-group">
+          <label for="message">Message *</label>
+          <textarea id="message" name="message" placeholder="Share your feedback, suggestions, or report any issues..." required></textarea>
+        </div>
+        
+        <button type="submit">Submit Feedback</button>
+      </form>
+      
+      <div class="success-message" id="success-message">
+        Thank you for your feedback! We appreciate your input.
+      </div>
+    </div>
+    
+    <script>
+      const form = document.getElementById('feedback-form');
+      const successMessage = document.getElementById('success-message');
+      
+      form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        
+        // Get form data
+        const formData = new FormData(form);
+        const data = {
+          name: formData.get('name'),
+          email: formData.get('email'),
+          message: formData.get('message')
+        };
+        
+        // Here you would typically send the data to a server
+        // For now, we'll just show a success message
+        console.log('Feedback submitted:', data);
+        
+        // Show success message
+        successMessage.classList.add('show');
+        form.reset();
+        
+        // Hide success message after 5 seconds
+        setTimeout(() => {
+          successMessage.classList.remove('show');
+        }, 5000);
+      });
+    </script>
+  </body>
+</html>
+
