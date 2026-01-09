@@ -4,6 +4,8 @@
 
 A classic Pac-Man game implementation built with TypeScript and HTML5 Canvas. Navigate through the maze, collect pills, avoid ghosts, and try to achieve the highest score!
 
+test
+
 ## 🎯 Features
 
 - **Classic Gameplay**: Navigate Pac-Man through a maze with arrow key controls
