@@ -24,3 +24,7 @@ scans:
   ajax_spider_timeout: 180  # timeout in seconds
   passive: true
   active: false
+
+# Whether to include PR code changes (diff) when sending alerts to LLM for summarization
+# Set to false to disable sending code diff to LLM (useful for comparing outputs)
+include_pr_changes: false

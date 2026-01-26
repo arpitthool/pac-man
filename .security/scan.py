@@ -35,6 +35,9 @@ ajax_spider_timeout = scans_config.get("ajax_spider_timeout", 120)  # default 12
 run_passive = scans_config.get("passive", True)
 run_active = scans_config.get("active", False)
 
+# Get whether to include PR code changes when sending to LLM
+include_pr_changes = config.get("include_pr_changes", True)
+
 # Show selected scans
 print(f"Selected scans: 🕷️ Spider: {run_spider} | ⚡ AJAX Spider: {run_ajax_spider} | 🧠 Passive: {run_passive} | 💥 Active: {run_active}")
 
@@ -537,7 +540,7 @@ if suffix == "pr":
         new_alerts_data, 
         prompt_path=".security/prompts/prompt_alert.txt", 
         prompt_final_path=".security/prompts/prompt_final.txt", 
-        include_pr_changes=True)
+        include_pr_changes=include_pr_changes)
 
     resolved_summaries, resolved_final_summary, resolved_fail_count, resolved_alerts_with_summaries = get_alert_summaries_and_final_summary(
         resolved_alerts_data, 
