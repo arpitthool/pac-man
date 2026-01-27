@@ -3,13 +3,15 @@
 summarize_levels:
   - High
   - Medium
+  - Low
+  # - Informational
 
 # Configurable limit on maximum number of alerts to include in each individual report i.e. new alerts, resolved alerts, and older alerts.
 alerts_limit: 15
 
 # It defines which risk levels you want to completely skip i.e. the alerts at these levels won't even be processed. 
 ignore_levels:
-  - Informational
+  # - Informational
 
 # It defines which risk levels(if NOT ignored) you want to fail the pipeline i.e. if you want to fail the pipeline if a High level
 # level alert is found, then add it here and make sure that ignore_levels does not contain 'High' the level.
@@ -22,3 +24,7 @@ scans:
   ajax_spider_timeout: 180  # timeout in seconds
   passive: true
   active: false
+
+# Whether to include PR code changes (diff) when sending alerts to LLM for summarization
+# Set to false to disable sending code diff to LLM (useful for comparing outputs)
+include_pr_changes: false
